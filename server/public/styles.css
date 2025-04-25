@@ -1,3 +1,4 @@
+/* Base styles */
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -9,6 +10,7 @@ h1 {
   color: #333;
 }
 
+/* Session header and copy button */
 .session-header {
   background: #333;
   color: white;
@@ -20,8 +22,11 @@ h1 {
   margin-left: 10px;
   background: #555;
   font-size: 14px;
+  color: white;
+  cursor: pointer;
 }
 
+/* Toolbar layout */
 .toolbar {
   background: white;
   padding: 10px;
@@ -32,17 +37,20 @@ h1 {
   flex-wrap: wrap;
 }
 
+/* Main layout */
 #mainContent {
   display: flex;
   height: calc(100vh - 170px);
 }
 
+/* Canvas area */
 .canvas-wrapper {
   position: relative;
   flex-grow: 1;
 }
 
-#whiteboard, #previewLayer {
+#whiteboard,
+#previewLayer {
   position: absolute;
   top: 0;
   left: 0;
@@ -50,12 +58,12 @@ h1 {
   height: 100%;
 }
 
-
 #previewLayer {
   pointer-events: none;
   z-index: 2;
 }
 
+/* Chat panel */
 .chat-panel {
   width: 300px;
   background: #f9f9f9;
@@ -74,7 +82,9 @@ h1 {
   margin-bottom: 5px;
 }
 
-input, button {
+/* Inputs and buttons */
+input,
+button {
   font-size: 16px;
   padding: 8px;
   margin: 4px 0;
@@ -92,6 +102,7 @@ button:hover {
   background-color: #0056b3;
 }
 
+/* Color picker */
 #colorPicker {
   width: 40px;
   height: 40px;
@@ -101,18 +112,7 @@ button:hover {
   border-radius: 5px;
 }
 
-#chatNotification {
-  background: #ffc107;
-  padding: 8px 15px;
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  border-radius: 5px;
-  font-weight: bold;
-  display: none;
-  z-index: 999;
-}
-
+/* Home page layout */
 .home-container {
   min-height: 100vh;
   display: flex;
@@ -122,12 +122,11 @@ button:hover {
   padding-top: 120px;
 }
 
-
 .home-box {
   background: white;
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -139,33 +138,24 @@ button:hover {
   width: 100%;
 }
 
+/* Brush size slider */
 #brushSize {
   appearance: none;
+  width: 120px;
   height: 6px;
   background: #ccc;
   border-radius: 5px;
-  width: 120px;
   margin: 0 10px;
   outline: none;
   cursor: pointer;
 }
 
-#brushSize::-webkit-slider-thumb {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #555;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid white;
-  margin-top: -4px;
-}
-
+#brushSize::-webkit-slider-thumb,
 #brushSize::-moz-range-thumb {
   width: 14px;
   height: 14px;
   background: #555;
   border-radius: 50%;
-  cursor: pointer;
   border: 2px solid white;
+  cursor: pointer;
 }

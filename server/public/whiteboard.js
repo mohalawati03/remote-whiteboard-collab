@@ -1,7 +1,9 @@
+// Canvas setup
 const canvas = document.getElementById("whiteboard");
 const ctx = canvas.getContext("2d");
 const canvasBgColor = "#f2f4f8";
 
+// Tools and session info
 const colorPicker = document.getElementById("colorPicker");
 const brushSize = document.getElementById("brushSize");
 const toolButtons = document.querySelectorAll(".tool-btn");
@@ -10,31 +12,38 @@ const sessionId = new URLSearchParams(window.location.search).get("session");
 const userName = new URLSearchParams(window.location.search).get("name") || "Anonymous";
 const isHost = new URLSearchParams(window.location.search).get("host") === "true";
 
+// Display session ID
 document.getElementById("sessionIdDisplay").innerText = sessionId;
 document.getElementById("copyBtn").onclick = () => {
   navigator.clipboard.writeText(sessionId);
   alert("Session key copied!");
 };
 
+// Connect to server
 const socket = io();
 socket.emit("joinSession", { sessionId, name: userName, isHost });
 
+// Set canvas size
 canvas.width = window.innerWidth - 320;
 canvas.height = window.innerHeight - 160;
 
+// Preview layer for shape outlines
 const previewCanvas = document.getElementById("previewLayer");
 const pctx = previewCanvas.getContext("2d");
 previewCanvas.width = canvas.width;
 previewCanvas.height = canvas.height;
 
+// Fill canvas background
 ctx.fillStyle = canvasBgColor;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+// Drawing state
 let tool = "freehand";
 let isDrawing = false;
 let startX, startY;
 let currentPath = [];
 
+// Tool selection
 toolButtons.forEach((btn) => {
   btn.onclick = () => {
     tool = btn.getAttribute("data-tool");
@@ -43,6 +52,7 @@ toolButtons.forEach((btn) => {
   };
 });
 
+// Mouse down handler
 canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();
   startX = e.clientX - rect.left;
@@ -64,6 +74,7 @@ canvas.addEventListener("mousedown", (e) => {
   }
 });
 
+// Mouse move handler
 canvas.addEventListener("mousemove", (e) => {
   if (!isDrawing) return;
   const rect = canvas.getBoundingClientRect();
@@ -81,6 +92,7 @@ canvas.addEventListener("mousemove", (e) => {
   }
 });
 
+// Mouse up handler
 canvas.addEventListener("mouseup", (e) => {
   if (!isDrawing) return;
   isDrawing = false;
@@ -105,6 +117,7 @@ canvas.addEventListener("mouseup", (e) => {
   }
 });
 
+// Show shape preview on drag
 function drawPreviewShape(x1, y1, x2, y2) {
   pctx.clearRect(0, 0, canvas.width, canvas.height);
   pctx.beginPath();
@@ -129,10 +142,12 @@ function drawPreviewShape(x1, y1, x2, y2) {
   pctx.stroke();
 }
 
+// Clear preview canvas
 function clearPreview() {
   pctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+// Draw final shape on main canvas
 function drawFinalShape(x1, y1, x2, y2, emit) {
   ctx.beginPath();
   ctx.strokeStyle = colorPicker.value;
@@ -169,6 +184,7 @@ function drawFinalShape(x1, y1, x2, y2, emit) {
   }
 }
 
+// Clear canvas and send snapshot
 window.clearBoard = function () {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = canvasBgColor;
@@ -176,20 +192,20 @@ window.clearBoard = function () {
   sendSnapshot();
 };
 
-// 🆕 Send canvas image to server
+// Send snapshot to server
 function sendSnapshot() {
   const image = canvas.toDataURL("image/png");
   socket.emit("snapshot", { sessionId, image });
 }
 
-// 🆕 Load snapshot when joining
+// Load snapshot when joining session
 socket.on("loadSnapshot", (imageData) => {
   const img = new Image();
   img.onload = () => ctx.drawImage(img, 0, 0);
   img.src = imageData;
 });
 
-// Sync draw from others
+// Render drawing from other users
 socket.on("draw", (data) => {
   ctx.strokeStyle = data.color;
   ctx.lineWidth = data.size;
@@ -201,6 +217,7 @@ socket.on("draw", (data) => {
   ctx.stroke();
 });
 
+// Render shape from other users
 socket.on("shape", (data) => {
   if (data.type === "fill") {
     ctx.fillStyle = data.color;

@@ -11,17 +11,22 @@
     <h1>Collaborative Whiteboard</h1>
 
     <div class="home-box">
+      <!-- Create session button -->
       <button onclick="createSession()">🎨 Create New Session</button>
 
+      <!-- Name input for joining a session -->
       <input type="text" id="nameInput" placeholder="Your Name (required to join)" />
 
+      <!-- Session key input for joining -->
       <input type="text" id="sessionKey" placeholder="Enter Session Key" />
 
+      <!-- Join session button -->
       <button onclick="joinSession()">🔗 Join Existing Session</button>
     </div>
   </div>
 
   <script>
+    // Create a new session and redirect user as host
     function createSession() {
       fetch("/session/create", { method: "POST" })
         .then(res => res.json())
@@ -30,6 +35,7 @@
         });
     }
 
+    // Join an existing session with name and key
     function joinSession() {
       const name = document.getElementById("nameInput").value.trim();
       const sessionId = document.getElementById("sessionKey").value.trim();

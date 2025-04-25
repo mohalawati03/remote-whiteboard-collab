@@ -1,3 +1,4 @@
+// Required modules
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -6,20 +7,23 @@ const { Server } = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 
+// Create express app and HTTP server
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static("server/public"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static("server/public")); // Serve frontend
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
 
+// In-memory data
 const sessions = {};
 const userNames = {};
 const canvasSnapshots = {};
 
-// File storage setup
+// Multer storage config
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
@@ -29,7 +33,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// File upload endpoint
+// Upload route
 app.post("/upload/:sessionId", upload.single("file"), (req, res) => {
   const sessionId = req.params.sessionId;
   const file = req.file;
@@ -48,14 +52,14 @@ app.post("/upload/:sessionId", upload.single("file"), (req, res) => {
   res.status(200).send({ fileName: file.originalname, fileUrl });
 });
 
-// Session creation
+// Create a session
 app.post("/session/create", (req, res) => {
   const sessionId = uuidv4();
   sessions[sessionId] = { users: [] };
   res.json({ sessionId });
 });
 
-// Session joining
+// Join a session
 app.post("/session/join", (req, res) => {
   const { sessionId } = req.body;
   if (sessions[sessionId]) {
@@ -65,22 +69,20 @@ app.post("/session/join", (req, res) => {
   }
 });
 
-// WebSocket logic
+// Socket.io logic
 io.on("connection", (socket) => {
+  // User joins a session
   socket.on("joinSession", ({ sessionId, name, isHost }) => {
     socket.join(sessionId);
     const displayName = isHost ? "Host" : name || "Anonymous";
     userNames[socket.id] = displayName;
 
-    // Add user to session
     if (!sessions[sessionId]) sessions[sessionId] = { users: [] };
     sessions[sessionId].users.push({ id: socket.id, name: displayName });
 
-    // Send updated user list
     const namesList = sessions[sessionId].users.map(u => u.name);
     io.to(sessionId).emit("updateUserList", namesList);
 
-    // Send snapshot if exists
     if (canvasSnapshots[sessionId]) {
       socket.emit("loadSnapshot", canvasSnapshots[sessionId]);
     }
@@ -88,27 +90,28 @@ io.on("connection", (socket) => {
     io.to(sessionId).emit("systemMessage", `${displayName} joined the session`);
   });
 
-  // Drawing
+  // Broadcast freehand drawings
   socket.on("draw", (data) => {
     socket.to(data.sessionId).emit("draw", data);
   });
 
+  // Broadcast shapes (rect, circle, triangle, fill)
   socket.on("shape", (data) => {
     socket.to(data.sessionId).emit("shape", data);
   });
 
-  // Chat
+  // Broadcast chat messages
   socket.on("chatMessage", (data) => {
     const sender = userNames[socket.id] || "Anonymous";
     io.to(data.sessionId).emit("chatMessage", { name: sender, text: data.text });
   });
 
-  // Canvas snapshot
+  // Store canvas snapshot
   socket.on("snapshot", ({ sessionId, image }) => {
     canvasSnapshots[sessionId] = image;
   });
 
-  // Disconnect
+  // Handle disconnect
   socket.on("disconnect", () => {
     const name = userNames[socket.id];
 
@@ -126,7 +129,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
+// Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () =>
   console.log(`✅ Server running at http://localhost:${PORT}`)
