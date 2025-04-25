@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Whiteboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="session-header">
+    <span id="sessionLabel">Session Key:</span>
+    <span id="sessionIdDisplay"></span>
+    <button id="copyBtn">📋 Copy</button>
+  </div>
+
+  <div class="toolbar">
+    <input type="color" id="colorPicker" />
+    <input type="range" id="brushSize" min="1" max="10" value="2" />
+    <button class="tool-btn active" data-tool="freehand">✏️ Freehand</button>
+    <button class="tool-btn" data-tool="eraser">🧽 Eraser</button>
+    <button class="tool-btn" data-tool="rectangle">▭ Rectangle</button>
+    <button class="tool-btn" data-tool="circle">⬤ Circle</button>
+    <button class="tool-btn" data-tool="triangle">🔺 Triangle</button>
+    <button class="tool-btn" data-tool="fill">💧 Fill</button>
+    <button onclick="clearBoard()">🗑️ Clear</button>
+  </div>
+
+  <div id="mainContent">
+    <div class="canvas-wrapper">
+      <canvas id="whiteboard"></canvas>
+      <canvas id="previewLayer"></canvas>
+    </div>
+
+    <div class="chat-panel">
+      <!-- 👥 Add this line to show users -->
+      <div id="userList" style="font-weight: bold; font-size: 14px; padding: 8px;"></div>
+    
+      <!-- 🗨️ Keep your existing message box -->
+      <div id="messages" class="chat-box"></div>
+    
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <input type="file" id="fileInput" />
+    </div>
+    
+  </div>
+
+  <div id="chatNotification" style="display: none;">📨 New message</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="whiteboard.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
