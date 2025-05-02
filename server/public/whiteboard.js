@@ -124,15 +124,15 @@ function drawPreviewShape(x1, y1, x2, y2) {
   pctx.strokeStyle = colorPicker.value;
   pctx.lineWidth = brushSize.value;
 
-  if (tool === "rectangle") {
+  if (type === "rectangle") {
     pctx.rect(x1, y1, x2 - x1, y2 - y1);
-  } else if (tool === "circle") {
+  } else if (type === "circle") {
     const centerX = (x1 + x2) / 2;
     const centerY = (y1 + y2) / 2;
     const radiusX = Math.abs((x2 - x1) / 2);
     const radiusY = Math.abs((y2 - y1) / 2);
     pctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-  } else if (tool === "triangle") {
+  } else if (type === "triangle") {
     pctx.moveTo(x1, y1);
     pctx.lineTo(x2, y2);
     pctx.lineTo(x1 - (x2 - x1), y2);
@@ -148,20 +148,20 @@ function clearPreview() {
 }
 
 // Draw final shape on main canvas
-function drawFinalShape(x1, y1, x2, y2, emit) {
+function drawFinalShape(x1, y1, x2, y2, emit, type = tool, size = brushSize.value) {
   ctx.beginPath();
   ctx.strokeStyle = colorPicker.value;
-  ctx.lineWidth = brushSize.value;
+  ctx.lineWidth = size;
 
-  if (tool === "rectangle") {
+  if (type === "rectangle") {
     ctx.rect(x1, y1, x2 - x1, y2 - y1);
-  } else if (tool === "circle") {
+  } else if (type === "circle") {
     const centerX = (x1 + x2) / 2;
     const centerY = (y1 + y2) / 2;
     const radiusX = Math.abs((x2 - x1) / 2);
     const radiusY = Math.abs((y2 - y1) / 2);
     ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-  } else if (tool === "triangle") {
+  } else if (type === "triangle") {
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.lineTo(x1 - (x2 - x1), y2);
@@ -223,6 +223,6 @@ socket.on("shape", (data) => {
     ctx.fillStyle = data.color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   } else {
-    drawFinalShape(data.x1, data.y1, data.x2, data.y2, false);
+    drawFinalShape(data.x1, data.y1, data.x2, data.y2, false, data.type, data.size);
   }
 });
